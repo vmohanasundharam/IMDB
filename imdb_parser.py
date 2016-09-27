@@ -2,6 +2,7 @@ from __future__ import division
 import requests
 import json
 from bs4 import BeautifulSoup
+import os
 class IMDBparser:
 
 	all_movies_details={}
@@ -41,18 +42,30 @@ class IMDBparser:
 		
 		for movies in self.movies_list:
 			id=self.get_movie_id(movies)
-			info=self.get_movie_details(id)			
+			if id != "False":
+				info=self.get_movie_details(id)			
+			else:
+				info={'movie_name':movies,
+				'movie_rating':0.0,
+				'movie_genre':[],
+				'movie_year':0,
+				'movie_meta_score':0,
+				'sys_rating':0}
 			self.all_movies_details.update({movies:info})
+
 		
 
 	def get_movie_id(self,movie_name):
 		results = requests.get('http://www.omdbapi.com/?t='+movie_name+'&y=&plot=short&r=json')
 		dictionary = json.loads(results.content)
-		movie_id=str(dictionary["imdbID"])
-		return movie_id
+		Response = str(dictionary["Response"])
+		if Response  == "True":
+			movie_id=str(dictionary["imdbID"])
+			return movie_id
+		else:
+			return "False"
 
 	def get_movie_details(self,movie_id):
-
 		results = requests.get('http://www.imdb.com/title/'+movie_id)
 		soup = BeautifulSoup(results.content,"html.parser")
 		genre_list = self.get_movie_genre(soup)
@@ -107,19 +120,24 @@ class IMDBparser:
 
 	def get_movie_genre(self, soup):
 		genre = soup.find('div',attrs={"itemprop":"genre"})
-		genre_li=genre.find_all('a')
-		length=len(genre_li)
-		i=0
-		genre_list=[]
+		genre_list = []
+		if genre != None:
+			genre_li=genre.find_all('a')
+			length=len(genre_li)
+			i=0
+			genre_list=[]
 
-		for gen in genre_li:
-			genre_list.append(str(gen.text).strip())
+			for gen in genre_li:
+				genre_list.append(str(gen.text).strip())
 
 		return genre_list	
 
-	
 
-movie_list=['Suicide Squad','The Age of Adaline','pk']
+movie_list = []
+for f in os.listdir("/home/ccc-86/harianna/movies/"):
+	j=f.split(".")
+	movie_list.append(j[0])
+print movie_list
 user_genre = [['Love','Action','Sci-Fi','Drama','Romance'],[1,2,3,4,5]]
 obj=IMDBparser(movie_list)
 obj.get_each_movie_name()
