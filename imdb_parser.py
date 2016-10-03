@@ -3,6 +3,7 @@ import requests
 import json
 from bs4 import BeautifulSoup
 import os
+import sys
 class IMDBparser:
 
 	all_movies_details={}
@@ -16,7 +17,7 @@ class IMDBparser:
 		self.mov_list=mov_list
 		self.movies_count=len(mov_list)
 	
-	
+		
 	def prioritizing_movies(self):
 		self.final_list=sorted(self.all_movies_details.items(), key=lambda a: a[1]['sys_rating'], reverse=True)
 		return self.final_list
@@ -124,25 +125,57 @@ class IMDBparser:
 		if genre != None:
 			genre_li=genre.find_all('a')
 			length=len(genre_li)
-			i=0
 			genre_list=[]
 
 			for gen in genre_li:
 				genre_list.append(str(gen.text).strip())
 
 		return genre_list	
+	
+print "IMDB PARSER"
 
+movie_path = "" 
+while(True):
+	movie_path = raw_input("Give me a path")
+	if (movie_path == ""):
+		movie_path = os.getcwd()
+		break
+	else:
+		isvalid = os.path.isdir(movie_path)
+		if(isvalid==False):
+			print "Ivalid Directory"
+			continue
+		break
 
+print "Processing....."
 movie_list = []
-for f in os.listdir("/home/ccc-86/harianna/movies/"):
-	j=f.split(".")
-	movie_list.append(j[0])
-print movie_list
-user_genre = [['Love','Action','Sci-Fi','Drama','Romance'],[1,2,3,4,5]]
+for movies in os.listdir(movie_path):
+	movie_name=movies.split(".")
+	movie_list.append(movie_name[0])
+user_genre = [['Love','Action','Sci-Fi','Drama','Romance'],[5,0,0,0,0]]
 obj=IMDBparser(movie_list)
 obj.get_each_movie_name()
 obj.init_user_genre(user_genre)
 obj.calculate_genre_rating()
 res=obj.prioritizing_movies()
-for r in res:
-	print r
+print "Done..."
+print "Got "+str(len(res)-1)+" Movies !!!!"
+while(True):
+	choice = raw_input("How many movies want to display ? [press enter to show all movies ]")
+	choice = int(choice)
+	if(choice > len(res)-1):
+		print "Choice more than movie count"
+		continue
+	break
+
+if(choice == ""):
+	for movie in res:
+		print movie[0]
+else:
+	for i in range(int(choice)):
+		print res[i][0]
+
+
+
+
+
