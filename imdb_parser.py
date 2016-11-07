@@ -147,12 +147,27 @@ while(True):
 			continue
 		break
 
-print "Processing....."
+
 movie_list = []
 for movies in os.listdir(movie_path):
 	movie_name=movies.split(".")
 	movie_list.append(movie_name[0])
-user_genre = [['Love','Action','Sci-Fi','Drama','Romance'],[5,0,0,0,0]]
+user_genre = [['Action','Adventure','Animation','Comedy','Crime','Family','Fantasy','History','Horror','Romance','Sci-Fi','Sport','Thriller','War'],[1,1,1,1,1,1,1,1,1,1,1,1,1,1]]
+print user_genre
+print "Want to change Priority ?" 
+print "[1 -> Change]"
+
+genre_choice = raw_input("Want to change Priority ? [y/n]")
+genre_choice = str(genre_choice)
+if(genre_choice == 'Y' or genre_choice == 'y'):
+	for num in range(1,14):
+		print "Current : ",user_genre[0][num],":",user_genre[1][num]
+		print "New : ",user_genre[0][num],":"
+		user_genre[1][num] = raw_input()
+		user_genre[1][num] = int(user_genre[1][num])
+
+
+print "Processing....."
 obj=IMDBparser(movie_list)
 obj.get_each_movie_name()
 obj.init_user_genre(user_genre)
